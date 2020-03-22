@@ -1,0 +1,292 @@
+swagger: "2.0"
+info:
+  description: "Profile management microservice which will allow query, create, update, delete of profiles "
+  version: "1.0.0"
+  title: "Microservices"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "manishsinghal.m@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "test.swagger.io"
+basePath: "/v1"
+tags:
+  - name: "profile"
+    description: "manage your profile"
+schemes:
+  - "https"
+  - "http"
+paths:
+  /profile:
+    post:
+      tags:
+        - "profile"
+      summary: "Add new profile"
+      description: ""
+      operationId: "addProfile"
+      consumes:
+        - "application/json"
+        - "application/xml"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "create new profile"
+          required: true
+          schema:
+            $ref: "#/definitions/profile"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/profileResponse"
+        405:
+          description: "Invalid input"
+      security:
+        - profile_auth:
+            - "write:profiles"
+    put:
+      tags:
+        - "profile"
+      summary: "Update an existing profile"
+      description: ""
+      operationId: "updateProfile"
+      consumes:
+        - "application/json"
+        - "application/xml"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "update profile"
+          required: true
+          schema:
+            $ref: "#/definitions/profile"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/profileResponse"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "profile not found"
+        405:
+          description: "Validation exception"
+      security:
+        - profile_auth:
+            - "write:profiles"
+    get:
+      tags:
+        - "profile"
+      summary: "query profile"
+      description: ""
+      operationId: "queryProfile"
+      consumes:
+        - "application/json"
+        - "application/xml"
+      produces:
+        - "application/xml"
+        - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/profileResponse"
+      security:
+        - profile_auth:
+            - "write:profiles"
+            - "read:profiles"
+  /profile/{applicantId}:
+    get:
+      tags:
+        - "profile"
+      summary: "Find profile by applicant ID"
+      description: "Returns profile"
+      operationId: "readProfile"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: "applicantId"
+          in: "path"
+          description: "applicant ID of profile"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/profileResponse"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Profile not found"
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - "profile"
+      summary: "Delete profile"
+      description: ""
+      operationId: "deleteProfile"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: "applicantId"
+          in: "path"
+          description: "applicantId  to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/profileResponse"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "profile not found"
+      security:
+        - profile_auth:
+            - "write:profiles"
+securityDefinitions:
+  profile_auth:
+    type: "oauth2"
+    authorizationUrl: "http://swagger.io"
+    flow: "implicit"
+    scopes:
+      write:profiles: "modify profiles"
+      read:profiles: "read profiles"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  personalDetails:
+    type: "object"
+    properties:
+      applicantID:
+        type: "integer"
+        format: "int64"
+        example: 4567677
+      emailId:
+        type: "string"
+        example: yaml@gmail.com
+        format: email
+      phoneNumber:
+        type: "string"
+        example: 8767676756
+      firstName:
+        type: "string"
+        example: Manish
+      address:
+        type: "array"
+        items:
+          $ref: "#/definitions/Address"
+        minItems: 1
+      lastName:
+        type: "string"
+        example: singhal
+    required:
+      - emailId
+      - phoneNumber
+      - firstName
+      - lastName
+      - address
+    xml:
+      name: "personalDetails"
+  professionalDetails:
+    type: "object"
+    properties:
+      totalYearsOfExperience:
+        type: "integer"
+        format: "int32"
+        example: 10
+      primarySkill:
+        type: "string"
+        example: java
+      role/designation:
+        type: "string"
+        example: software engineer
+    required:
+      - totalYearsOfExperience
+      - primarySkill
+      - role/designation
+    xml:
+      name: "Category"
+  skillsList:
+    type: "object"
+    properties:
+      skillCategory:
+        type: "string"
+        example: programming
+      toolName:
+        type: "string"
+        example: swagger
+      yearsOfExperience:
+        type: "integer"
+        format: "int32"
+        example: 1
+      monthsOfExperience:
+        type: "integer"
+        format: "int32"
+        example: 6
+      recentlyUsed:
+        type: "boolean"
+        example: true
+  Address:
+    type: "object"
+    properties:
+      unit:
+        type: "string"
+        example: U1103
+      street:
+        type: "string"
+        example: 7K high street windsor
+      state:
+        type: "string"
+        example: VIC
+      country:
+        type: "string"
+        example: Australia
+      zipcode:
+        type: "integer"
+        format: "int32"
+        example : 3181
+      addressType:
+        type: "string"
+        enum: [home, office]
+        example: home
+  profile:
+    type: "object"
+    properties:
+      personalDetails:
+        $ref: "#/definitions/personalDetails"
+      professionalDetails:
+        $ref: "#/definitions/professionalDetails"
+      skiilsList:
+        $ref: "#/definitions/skillsList"
+  profileResponse:
+    type: "object"
+    properties:
+      profile:
+        type: "array"
+        items:
+          $ref: "#/definitions/profile"
+      message:
+        type: "string"
+      code:
+        type: "integer"
+        format: "int32"
+externalDocs:
+  description: "more details about api"
+  url: "http://swagger.io"
